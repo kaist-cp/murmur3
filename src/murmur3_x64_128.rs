@@ -23,10 +23,10 @@ impl Default for MurmurHasher {
 }
 
 pub fn murmur3_x64_128(source: usize, seed: u32) -> u128 {
-    const size: usize = mem::size_of::<usize>();
-    const_assert!(size <= 16);
+    const SIZE: usize = mem::size_of::<usize>();
+    const_assert!(SIZE <= 16);
 
-    let buffer: [u8; size] = unsafe { mem::transmute(source) };
+    let buffer: [u8; SIZE] = unsafe { mem::transmute(source) };
     let mut hasher = MurmurHasher::new(seed);
 
     hasher.write(&buffer[..]);
@@ -121,12 +121,12 @@ fn process_16_bytes(h1: u64, h2: u64, chunk: &[u8]) -> (u64, u64) {
 
 fn process_odd_bytes(h1: u64, h2: u64, index: usize, buf: &[u8]) -> (u64, u64) {
     match index {
-        9...15 => (
+        9..=15 => (
             h1 ^ process_h1_k_x64(LittleEndian::read_u64(&buf[0..8])),
             h2 ^ process_h2_k_x64(LittleEndian::read_uint(&buf[8..], index - 8) as u64),
         ),
         8 => (h1 ^ process_h1_k_x64(LittleEndian::read_u64(&buf)), h2),
-        1...7 => (
+        1..=7 => (
             h1 ^ process_h1_k_x64(LittleEndian::read_uint(&buf, index) as u64),
             h2,
         ),

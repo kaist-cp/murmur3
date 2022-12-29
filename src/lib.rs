@@ -34,17 +34,17 @@ pub fn murmur3_x86_128(source: usize, seed: u32, out: &mut [u8]) {
     let mut h3: u32 = seed;
     let mut h4: u32 = seed;
 
-    const size: usize = mem::size_of::<usize>();
-    const_assert!(size <= 16);
+    const SIZE: usize = mem::size_of::<usize>();
+    const_assert!(SIZE <= 16);
 
-    let buf: [u8; size] = unsafe { mem::transmute(source) };
+    let buf: [u8; SIZE] = unsafe { mem::transmute(source) };
     let mut processed: u32 = 0;
 
     if out.len() < 16 {
         panic!("Invalid out buffer size");
     }
 
-    match size {
+    match SIZE {
         16 => {
             let k1: u32 = LittleEndian::read_u32(&buf[0..4]);
             let k2: u32 = LittleEndian::read_u32(&buf[4..8]);
@@ -75,12 +75,12 @@ pub fn murmur3_x86_128(source: usize, seed: u32, out: &mut [u8]) {
                 .wrapping_mul(M)
                 .wrapping_add(C8);
         }
-        13...15 => {
+        13..=15 => {
             h1 ^= process_h1_k_x86(LittleEndian::read_u32(&buf[0..4]));
             h2 ^= process_h2_k_x86(LittleEndian::read_u32(&buf[4..8]));
             h3 ^= process_h3_k_x86(LittleEndian::read_u32(&buf[8..12]));
             h4 ^= process_h4_k_x86(
-                LittleEndian::read_uint(&buf[12..size], size.wrapping_sub(12)) as u32,
+                LittleEndian::read_uint(&buf[12..SIZE], SIZE.wrapping_sub(12)) as u32,
             );
         }
         12 => {
@@ -88,30 +88,30 @@ pub fn murmur3_x86_128(source: usize, seed: u32, out: &mut [u8]) {
             h2 ^= process_h2_k_x86(LittleEndian::read_u32(&buf[4..8]));
             h3 ^= process_h3_k_x86(LittleEndian::read_u32(&buf[8..12]));
         }
-        9...11 => {
+        9..=11 => {
             h1 ^= process_h1_k_x86(LittleEndian::read_u32(&buf[0..4]));
             h2 ^= process_h2_k_x86(LittleEndian::read_u32(&buf[4..8]));
-            h3 ^= process_h3_k_x86(LittleEndian::read_uint(&buf[8..size], size - 8) as u32);
+            h3 ^= process_h3_k_x86(LittleEndian::read_uint(&buf[8..SIZE], SIZE - 8) as u32);
         }
         8 => {
             h1 ^= process_h1_k_x86(LittleEndian::read_u32(&buf[0..4]));
             h2 ^= process_h2_k_x86(LittleEndian::read_u32(&buf[4..8]));
         }
-        5...7 => {
+        5..=7 => {
             h1 ^= process_h1_k_x86(LittleEndian::read_u32(&buf[0..4]));
-            h2 ^= process_h2_k_x86(LittleEndian::read_uint(&buf[4..size], size - 4) as u32);
+            h2 ^= process_h2_k_x86(LittleEndian::read_uint(&buf[4..SIZE], SIZE - 4) as u32);
         }
         4 => {
             h1 ^= process_h1_k_x86(LittleEndian::read_u32(&buf));
         }
-        1...3 => {
-            h1 ^= process_h1_k_x86(LittleEndian::read_uint(&buf, size) as u32);
+        1..=3 => {
+            h1 ^= process_h1_k_x86(LittleEndian::read_uint(&buf, SIZE) as u32);
         }
         _ => {
             panic!("Invalid read!");
         }
     }
-    processed += size as u32;
+    processed += SIZE as u32;
 
     h1 ^= processed;
     h2 ^= processed;
@@ -191,12 +191,12 @@ pub fn murmur3_x64_128(source: usize, seed: u32, out: &mut [u8]) {
         panic!("Invalid out buffer size");
     }
 
-    const size: usize = mem::size_of::<usize>();
-    const_assert!(size <= 16);
+    const SIZE: usize = mem::size_of::<usize>();
+    const_assert!(SIZE <= 16);
 
-    let buf: [u8; size] = unsafe { mem::transmute(source) };
+    let buf: [u8; SIZE] = unsafe { mem::transmute(source) };
 
-    match size {
+    match SIZE {
         16 => {
             let k1 = LittleEndian::read_u64(&buf[0..8]);
             let k2 = LittleEndian::read_u64(&buf[8..]);
@@ -213,21 +213,21 @@ pub fn murmur3_x64_128(source: usize, seed: u32, out: &mut [u8]) {
                 .wrapping_mul(M)
                 .wrapping_add(C2);
         }
-        9...15 => {
+        9..=15 => {
             h1 ^= process_h1_k_x64(LittleEndian::read_u64(&buf[0..8]));
-            h2 ^= process_h2_k_x64(LittleEndian::read_uint(&buf[8..], size - 8));
+            h2 ^= process_h2_k_x64(LittleEndian::read_uint(&buf[8..], SIZE - 8));
         }
         8 => {
             h1 ^= process_h1_k_x64(LittleEndian::read_u64(&buf));
         }
-        1...7 => {
-            h1 ^= process_h1_k_x64(LittleEndian::read_uint(&buf, size));
+        1..=7 => {
+            h1 ^= process_h1_k_x64(LittleEndian::read_uint(&buf, SIZE));
         }
         _ => {
             panic!("Invalid read!");
         }
     }
-    processed += size as u32;
+    processed += SIZE as u32;
 
     h1 ^= processed as u64;
     h2 ^= processed as u64;
