@@ -9,12 +9,12 @@ license = "MIT/Apache-2.0"
 
 
 [dependencies]
-static_assertions = "0.3.2"
-byteorder = { version = "1.2", features=["i128"] }
+static_assertions = "1.1.0"
+byteorder = { version = "1.4", features=["i128"] }
 
 [dev-dependencies]
 murmur3-sys = { path = "./murmur3-sys"}
-quickcheck = "0.6"
+quickcheck = "1.0"
 
 
 
